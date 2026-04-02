@@ -5,7 +5,6 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  DEVELOPER_DIR: /Applications/Xcode_17.5.app/Contents/Developer
 
 jobs:
   build:
@@ -18,7 +17,9 @@ jobs:
           submodules: recursive
 
       - name: Setup Xcode
-        run: sudo xcode-select -s /Applications/Xcode_17.5.app
+        uses: maxim-lobanov/setup-xcode-action@v1
+        with:
+          xcode-version: '16.4'
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
