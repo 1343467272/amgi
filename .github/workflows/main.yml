@@ -1,0 +1,43 @@
+name: Build iOS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        run: xcode-select -s /Applications/Xcode_16.3.app
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: anki-bridge-rs
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios, aarch64-apple-ios-sim
+
+      - name: Install protoc
+        run: brew install protobuf
+
+      - name: Build XCFramework
+        run: ./scripts/build-xcframework.sh
+
+      - name: Generate Xcode project
+        run: |
+          cd AnkiApp
+          xcodegen generate
+
+      - name: Build iOS App
+        run: |
+          xcodebuild build \
+            -project AnkiApp/AnkiApp.xcodeproj \
+            -scheme AnkiApp \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max'
